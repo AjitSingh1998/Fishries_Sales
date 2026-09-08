@@ -1,0 +1,19 @@
+.tr-bg {
+	background-color: #5b9bd121 !important;
+}
+textarea {
+  resize: none;
+}
+.editable-input{position:relative;}
+.editable-input span.edit-icon{
+	display:none; 
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	padding:6px 8px 2px;
+	background: #e4e5e6;
+	cursor:pointer;
+}
+.editable-input:hover span.edit-icon {
+ display: block !important;
+}

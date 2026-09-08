@@ -1,0 +1,42 @@
+services:
+  web:
+    build: .
+    container_name: bansagar_web
+    ports:
+      - "8001:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=sales_gandhisagar
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+
+  db:
+    image: mysql:5.7
+    container_name: bansagar_db
+    command: --default-authentication-plugin=mysql_native_password --sql-mode=""
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sales_gandhisagar
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./schema_sales_gandhisagar.sql:/docker-entrypoint-initdb.d/schema_sales_gandhisagar.sql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: bansagar_phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
+
+volumes:
+  db_data:

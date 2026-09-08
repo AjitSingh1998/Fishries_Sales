@@ -1,0 +1,4 @@
+table.report_table_header, 
+table.report_table_body, 
+table.report_table_footers{margin-bottom:0px !important;}
+tr.record_data_no{display:none;}

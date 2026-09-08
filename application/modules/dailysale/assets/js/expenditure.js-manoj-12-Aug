@@ -1,0 +1,190 @@
+//allow only three places after decimal
+function checkDecimal(el){
+	var ex = /^\d*(\.\d{0,2})?$/;
+	if(ex.test(el.value)==false){
+		el.value = parseInt(el.value*100)/100;
+	}
+}
+
+function calculate_summary(){
+	var t_amount = 0;
+	$('.tbody_items').find('.amount').each(function(index, element) {
+		var amount = parseFloat($(element).val());
+        t_amount += amount;
+    });
+	$('.summ_amount').text(t_amount.toFixed(2));
+}
+
+$(document).ready(function(e) {	
+	//Strict input box to accept only numeric(with or without floting point) values
+	$(document).on("keypress keyup blur", '.strict_numeric', function (event) {
+		var t_val = $(this).val($(this).val().replace(/[^0-9\.]/g,''));
+		if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
+			event.preventDefault();
+		}
+    });
+	
+	//Strict input box to accept only integer values
+	$(document).on("keypress keyup blur change", '.strict_integer', function (event) {
+		$(this).val($(this).val().replace(/[^\d].+/, ""));
+		if ((event.which < 48 || event.which > 57)) {
+			event.preventDefault();
+		}
+    });
+	
+	var datatosend = {};
+	datatosend[csrf_token_name] = csrf_token_value;
+    var $input = $('#particular');						
+	$input.typeahead({
+		fitToElement: true,
+		delay: 3,
+		source:  function (query, process){
+					datatosend['search_key'] = query;
+					return $.post(site_url + "dailysale/json_particulars_typehead", datatosend, function (data) {
+									return process(data);
+								});
+		},
+		afterSelect: function(item){
+			//$('#search_id').val(item.id);
+			//$('#search_name').val(item.name);
+			//$('#search_email').val(item.email);
+			//$('#search_paypal_email').val(item.paypal_email);							
+		}
+	});
+	
+	
+	$('#add_exp_item').on('click', function(){
+		var tr = $(this).closest();
+		var particular = tr.find('#particular').val();
+		var amount = tr.find('#value').val();
+		var datatosend = {particular: particular, amount:amount};
+		datatosend[csrf_token_name] = csrf_token_value;
+		$.post(site_url+'dailysale/ajax_save_expenditure_item',datatosend,function(data, txtStatus, jqXHR){
+			if(data.status == 'success'){
+			var html = $('<tr></tr>');		
+			html.append('<td><input type="text" name="expenditure[particular][]" value="'+data.particular+'" class="form-control particular disable"></td>');
+			html.append('<td><input type="text" name="expenditure[amount][]" value="'+data.amount+'" class="form-control particular disable"></td>');
+			html.append('<td><button type="button" class="btn btn-danger delete_item"><i class="fa fa-trash"></i></button></td>');
+			html.insertBefore(tr);
+			}
+		
+		});
+	
+	});
+	
+	
+	$(document).on('click', '.save_item', function(){
+		var this_tr 	= $(this).closest('tr');		
+		var datatosend	= {};
+		datatosend['sale_id']		= $('.sale_id').val();
+		datatosend['particular'] 	= this_tr.find('.particular').val();
+		datatosend['amount'] 		= this_tr.find('.amount').val();
+		datatosend['remark'] 		= this_tr.find('.remark').val();
+		datatosend['sr_no'] 		= $('.tbody_items tr').length;
+		datatosend[csrf_token_name] = csrf_token_value;
+		
+		if(datatosend['particular'] && datatosend['amount'] > 0){
+			$.ajax({
+				url : site_url+'dailysale/ajax_save_expenditure', 
+				type : "POST",
+				beforeSend: function(){show_loader($('#panel_container'));},
+				data : datatosend,
+				success: function(response, status, xhr){
+					hide_loader($('#panel_container'));
+					if(status == "success"){
+						var ct = xhr.getResponseHeader("content-type") || "";
+						if (ct.indexOf('json') > -1) {
+							//If response is json
+							if(response.status == 'success'){
+								$('.tbody_items').append(response.data);
+								this_tr.removeClass('alert-danger');
+								this_tr.find('.particular').val('');
+								this_tr.find('.amount').val('');
+								this_tr.find('.remark').val('');
+							}else{
+								$('.ajax-response').html(response.message);
+								this_tr.addClass('alert-danger');
+							}
+						}else{
+							//If response is not json
+							alert('Invalid response type, Please reload the page and try again.');
+						}
+					}else{
+						alert('Response failed, Please reload the page and try again.');
+					}
+					calculate_summary();
+				},
+				error: function(){
+					hide_loader($('#panel_container'));
+					alert('There is some error, Please reload the page and try again.');
+				}		
+			});
+		}else{
+			alert('Please insert required fields.');
+			this_tr.addClass('alert-danger');
+		}
+	});
+	
+	$(document).on('click', '.delete_item', function(){
+		var conf = confirm('Are you sure to delete this particular ?');
+		if(conf){
+			var this_tr 	= $(this).closest('tr');
+			var datatosend	= {};
+			datatosend['sale_id']		= $('.sale_id').val();
+			datatosend['particular_id'] = $(this).data('particular_id');
+			datatosend[csrf_token_name] = csrf_token_value;
+			
+			if(datatosend['particular_id'] > 0){
+				$.ajax({
+					url : site_url+'dailysale/ajax_delete_expenditure', 
+					type : "POST",
+					beforeSend: function(){show_loader($('#panel_container'));},
+					data : datatosend,
+					success: function(response, status, xhr){
+						hide_loader($('#panel_container'));
+						if(status == "success"){
+							var ct = xhr.getResponseHeader("content-type") || "";
+							if (ct.indexOf('json') > -1) {
+								//If response is json
+								if(response.status == 'success'){
+									this_tr.remove();
+									$.toaster({settings:{timeout:10000,toast:{template:'<div class="alert alert-success"><button data-dismiss="alert" class="close">×</button> '+response.message+'</div>'}}, message:''});
+								}else{
+									$('.ajax-response').html(response.message);
+									this_tr.addClass('alert-danger');
+								}
+							}else{
+								//If response is not json
+								alert('Invalid response type, Please reload the page and try again.');
+							}
+						}else{
+							alert('Response failed, Please reload the page and try again.');
+						}
+						calculate_summary();
+					},
+					error: function(){
+						hide_loader($('#panel_container'));
+						alert('There is some error, Please reload the page and try again.');
+					}		
+				});
+			}else{
+				alert('Invalid Request.');
+			}
+		}
+	});
+	
+	calculate_summary();
+});
+
+
+
+
+
+
+
+
+
+
+
+
+

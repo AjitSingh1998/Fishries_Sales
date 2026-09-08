@@ -1,0 +1,12 @@
+.DS_Store
+Thumbs.db
+error_log
+*.log
+cookies.txt
+
+.svn/
+application/logs/
+application_old/
+DB_BACKUP/
+application/modules/old backup*/
+application/modules/sync_data_old_05-jan-2019/

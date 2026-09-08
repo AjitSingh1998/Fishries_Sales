@@ -1,0 +1,90 @@
+<?php 				 
+$userType = loginCompanyInfo('group_name'); 
+$business_name = 'assets/business_logo/'.loginCompanyInfo('business_name');
+//WEBROOTDIR.$logo 
+			
+$profile_image = 'adminProfileImage/150150/'.loginUserInfo('profileImage'); 
+$user_id = loginUserInfo('admin_id'); 
+$group_id = loginUserInfo('group_id'); 
+$pmenu = $this->uri->segment(1); //$this->router->fetch_class(); 
+$cmenu = $this->uri->segment(2); //$this->router->fetch_method();							 
+$scmenu = $this->uri->segment(3); //$this->router->fetch_method();	 
+$menulist = $this->common->getLeftNavigationMenuList($group_id); 
+?>
+<?php if(isset($user_id) && !empty($user_id)){ ?> 
+<header class="navbar navbar-default navbar-static-top top-header-menu">  
+  <!-- start: NAVBAR HEADER --> 
+  <div class="navbar-header"> 
+    <button href="javascript:void(0)" class="menu-mobile-toggler btn no-radius pull-left hidden-md hidden-lg" id="horizontal-menu-toggler" data-toggle="collapse" data-target=".horizontal-menu"> <i class="fa fa-bars"></i> </button> 
+    <a class="navbar-brand" href="<?=site_url()?>">  
+    	<img src="<?php echo $this->template_path; ?>images/logo2.png" alt="Simran Fisheries"/>  
+    </a>  
+    <a class="navbar-brand navbar-brand-collapsed" href="<?=site_url()?>">SF</a> 
+    <button class="btn pull-right menu-toggler visible-xs-block" id="menu-toggler" data-toggle="collapse" href=".navbar-collapse" data-toggle-class="menu-open"> <i class="fa fa-folder closed-icon"></i><i class="fa fa-folder-open open-icon"></i><small><i class="fa fa-caret-down margin-left-5"></i></small> </button> 
+  </div> 
+  <!-- end: NAVBAR HEADER -->  
+  <!-- start: NAVBAR COLLAPSE --> 
+  <div class="navbar-collapse collapse"> 
+  	<?php  
+	echo buildSimpleHorizontalNavigationBar(0, $menulist, 0, $pmenu, $cmenu, $scmenu);		 
+	?> 
+    <ul class="nav navbar-right"> 
+      <!-- start: USER DROPDOWN --> 
+      <li class="dropdown current-user"> 
+        <a data-toggle="dropdown" data-hover="dropdown" class="dropdown-toggle" data-close-others="true" href="#"> 
+			<?php if(is_file(WEBROOTDIR.$profile_image) && file_exists(WEBROOTDIR.$profile_image)){?> 
+            <img src="<?=displayImage(base_url($profile_image))?>" alt="" style="width:45px;">  
+            <span class="username"><?=loginUserInfo('full_name')?></span> 
+            <span class="caret"></span> 
+            <?php }else{?> 
+            <div class="lettericon" data-text="<?=ucfirst(loginUserInfo('full_name'))?>" data-color="auto" data-char-count="2" data-size="lg" data-box="circle"></div> 
+            <span class="username"><?=loginUserInfo('full_name')?></span> 
+            <span class="caret"></span> 
+            <?php }?> 
+        </a> 
+        <ul class="dropdown-menu dropdown-light dropdown-current-user dropdown-large animated fadeInUpShort no-radius"> 
+          <li> 
+           <a href="<?=site_url('account/edit_profile')?>" class="no-radius no-margin light-bg"> 
+            <div class="clearfix" style="padding: 5px 0;"> 
+              <div class="thread-image pull-left margin-right-10">                 
+                <?php if(is_file(WEBROOTDIR.$profile_image) && file_exists(WEBROOTDIR.$profile_image)){?> 
+                <img src="<?=displayImage(base_url($profile_image))?>" alt="" style="width:45px;">  
+                <?php }else{?> 
+                <div class="lettericon" data-text="<?=ucfirst(loginUserInfo('full_name'))?>" data-color="auto" data-char-count="2" data-size="lg" data-box="circle"></div> 
+                <?php }?>                 
+              </div> 
+              <span class="thread-content wapper-user"> 
+                <span class="username"><?=loginUserInfo('full_name')?></span> 
+                <span class="user-email"><?=loginUserInfo('email')?></span> 
+              </span> 
+            </div> 
+            </a>  
+            </li> 
+       		<li class="divider"></li> 
+          <li>  
+              <a class="no-radius no-margin" href="<?=site_url('account/edit_profile')?>"> 
+              	<i class="fa fa-google-wallet margin-right-10"></i> Edit Profile  
+              </a>  
+          </li> 
+          <li> <a class="no-radius no-margin" href="<?=site_url('account/change_password')?>"> <i class="fa fa-refresh margin-right-10"></i> Change Password</a> </li> 
+          <li> <a class="no-radius no-margin" href="<?=site_url('account/logout')?>"><i class="fa fa-sign-out margin-right-10"></i> Log Out </a> </li> 
+        </ul> 
+      </li>
+      <!-- end: USER DROPDOWN --> 
+    </ul> 
+    <!-- start: MENU TOGGLER FOR MOBILE DEVICES --> 
+    <div class="close-handle visible-xs-block menu-toggler" data-toggle="collapse" href=".navbar-collapse"> 
+      <div class="arrow-left"></div> 
+      <div class="arrow-right"></div> 
+    </div> 
+    <!-- end: MENU TOGGLER FOR MOBILE DEVICES -->  
+  </div> 
+  <!--<button class="sidebar-mobile-toggler dropdown-off-sidebar btn hidden-md hidden-lg"  data-toggle-class="app-offsidebar-open" data-toggle-target="#app" data-toggle-click-outside="#off-sidebar"> 
+        &nbsp; 
+    </button> 
+    <button class="dropdown-off-sidebar btn hidden-sm hidden-xs" data-toggle-class="app-offsidebar-open" data-toggle-target="#app" data-toggle-click-outside="#off-sidebar"> 
+        &nbsp; 
+    </button>-->  
+  <!-- end: NAVBAR COLLAPSE -->  
+</header> 
+<?php } ?> 
